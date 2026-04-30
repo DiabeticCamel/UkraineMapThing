@@ -186,6 +186,41 @@
     input[type=range] { -webkit-appearance: none; height: 3px; background: var(--border); border-radius: 2px; outline: none; width: 100%; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; }
 
+    /* LAYER TOGGLE BAR */
+    .layer-bar { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 8; display: flex; gap: 4px; background: rgba(13,17,23,0.88); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 99px; padding: 4px; }
+    .layer-btn { display: flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 99px; border: none; font-family: var(--font-mono); font-size: 10px; font-weight: 500; cursor: pointer; transition: all 0.18s; background: transparent; color: var(--text-muted); white-space: nowrap; }
+    .layer-btn .layer-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; transition: opacity 0.18s; }
+    .layer-btn.active { background: rgba(255,255,255,0.07); color: var(--text-primary); }
+    .layer-btn.inactive { opacity: 0.45; }
+    .layer-btn:hover { opacity: 1; color: var(--text-secondary); }
+
+    /* CLICK-TO-ROUTE HUD */
+    .route-hud { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 30; background: rgba(13,17,23,0.94); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 10px 16px; display: flex; align-items: center; gap: 14px; white-space: nowrap; transition: opacity 0.2s, transform 0.2s; }
+    .route-hud.hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(8px); }
+    .rhud-pins { display: flex; align-items: center; gap: 8px; }
+    .rhud-pin { display: flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10px; }
+    .rhud-circle { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; flex-shrink: 0; }
+    .rhud-circle.origin { background: rgba(59,130,246,0.25); border: 1.5px solid #3b82f6; color: #3b82f6; }
+    .rhud-circle.dest { background: rgba(16,185,129,0.25); border: 1.5px dashed #10B981; color: #10B981; }
+    .rhud-label { color: var(--text-muted); }
+    .rhud-label.set { color: var(--text-primary); }
+    .rhud-arrow { color: var(--text-muted); font-size: 12px; }
+    .rhud-divider { width: 1px; height: 24px; background: var(--border); }
+    .rhud-action { display: flex; gap: 5px; }
+    .rhud-go { height: 26px; padding: 0 12px; background: var(--accent-blue); border: none; border-radius: 99px; color: white; font-family: var(--font-mono); font-size: 10px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+    .rhud-go:hover { background: #1648c0; }
+    .rhud-go:disabled { opacity: 0.35; cursor: default; }
+    .rhud-clear { height: 26px; padding: 0 10px; background: transparent; border: 1px solid var(--border); border-radius: 99px; color: var(--text-muted); font-family: var(--font-mono); font-size: 10px; cursor: pointer; }
+    .rhud-clear:hover { color: var(--text-primary); border-color: var(--border-hover); }
+    .rhud-mode-hint { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); animation: pulse-hint 2s infinite; }
+    @keyframes pulse-hint { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+
+    /* MAP click cursor when in route-pick mode */
+    .map-pick-mode #map { cursor: crosshair !important; }
+
+    /* ROUTE MODE ACTIVATE BTN */
+    .mc-btn.pick-active { border-color: var(--accent-blue-light); color: var(--accent-blue-light); background: rgba(26,86,219,0.18); }
+
     /* GOOGLE MAPS OVERRIDES */
     .gm-style .gm-style-iw-c { background: var(--bg-secondary) !important; border: 1px solid var(--border) !important; box-shadow: none !important; }
     .gm-style-iw-d { color: var(--text-primary) !important; }
@@ -240,6 +275,15 @@
           </div>
         </div>
         <div class="panel-section">
+          <div class="section-label">Transit Layers</div>
+          <div class="legend">
+            <div class="legend-row"><span class="swatch" style="background:#10B981;"></span>Road corridor</div>
+            <div class="legend-row"><span class="swatch" style="background:#818cf8;"></span>Train (operating)</div>
+            <div class="legend-row"><span class="swatch" style="background:#EF4444; opacity:0.5;"></span>Train (suspended)</div>
+            <div class="legend-row"><span class="swatch" style="background:#fb923c;"></span>Bus route</div>
+          </div>
+        </div>
+        <div class="panel-section">
           <div class="section-label">Region Status</div>
           <div class="zone-list" id="zoneList"></div>
         </div>
@@ -288,11 +332,44 @@
     <div class="map-wrap" id="mapWrap">
       <div id="map"></div>
 
+      <!-- LAYER TOGGLE BAR (centre-top) -->
+      <div class="layer-bar">
+        <button class="layer-btn active" id="btn-corridors" onclick="toggleLayer('corridors', this)">
+          <span class="layer-dot" style="background:#10B981"></span>Road corridors
+        </button>
+        <button class="layer-btn active" id="btn-trains" onclick="toggleLayer('trains', this)">
+          <span class="layer-dot" style="background:#818cf8"></span>Train lines
+        </button>
+        <button class="layer-btn active" id="btn-buses" onclick="toggleLayer('buses', this)">
+          <span class="layer-dot" style="background:#fb923c"></span>Bus routes
+        </button>
+      </div>
+
       <div class="map-controls-overlay">
         <button class="mc-btn" title="Reset view" onclick="resetMapView()">⌂</button>
         <button class="mc-btn" title="Toggle heat zones" onclick="toggleHeatmap()">◉</button>
-        <button class="mc-btn" title="Toggle corridors" onclick="toggleRoutes()">↔</button>
+        <button class="mc-btn" id="pickModeBtn" title="Click two points to route" onclick="togglePickMode()">⊕</button>
         <button class="mc-btn" title="Request transport" onclick="document.getElementById('ridePanel').classList.remove('hidden')">🚗</button>
+      </div>
+
+      <!-- CLICK-TO-ROUTE HUD (bottom-centre) -->
+      <div class="route-hud hidden" id="routeHud">
+        <div class="rhud-pins">
+          <div class="rhud-pin">
+            <div class="rhud-circle origin">A</div>
+            <span class="rhud-label" id="hud-from">Click origin on map</span>
+          </div>
+          <span class="rhud-arrow">→</span>
+          <div class="rhud-pin">
+            <div class="rhud-circle dest">B</div>
+            <span class="rhud-label" id="hud-to">Then click destination</span>
+          </div>
+        </div>
+        <div class="rhud-divider"></div>
+        <div class="rhud-action">
+          <button class="rhud-go" id="hudGoBtn" onclick="hudRoute()" disabled>Route →</button>
+          <button class="rhud-clear" onclick="clearPickMode()">Clear</button>
+        </div>
       </div>
 
       <div class="city-tooltip hidden" id="cityTooltip">
@@ -343,6 +420,28 @@
     // ── DATA ──
     const UKRAINE_CENTER = { lat: 48.3794, lng: 31.1656 };
     const UKRAINE_ZOOM = 6;
+
+    // Major Ukrainian train lines (Ukrzaliznytsia)
+    const TRAIN_LINES = [
+      { name: 'Kyiv – Lviv', path: [{lat:50.4501,lng:30.5234},{lat:50.1,lng:29.2},{lat:49.83,lng:26.6},{lat:49.8397,lng:24.0297}], status: 'delayed' },
+      { name: 'Kyiv – Kharkiv', path: [{lat:50.4501,lng:30.5234},{lat:50.0,lng:32.5},{lat:49.9935,lng:36.2304}], status: 'operating' },
+      { name: 'Kyiv – Dnipro', path: [{lat:50.4501,lng:30.5234},{lat:49.4,lng:31.9},{lat:48.4647,lng:35.0462}], status: 'operating' },
+      { name: 'Kyiv – Odesa', path: [{lat:50.4501,lng:30.5234},{lat:48.5,lng:30.7},{lat:46.4825,lng:30.7233}], status: 'operating' },
+      { name: 'Lviv – Ivano-Frankivsk', path: [{lat:49.8397,lng:24.0297},{lat:49.4,lng:23.7},{lat:48.9226,lng:24.7111}], status: 'operating' },
+      { name: 'Lviv – Chop (Border)', path: [{lat:49.8397,lng:24.0297},{lat:49.4,lng:23.0},{lat:48.6208,lng:22.2879}], status: 'operating' },
+      { name: 'Dnipro – Zaporizhzhia', path: [{lat:48.4647,lng:35.0462},{lat:48.0,lng:35.1},{lat:47.8388,lng:35.1396}], status: 'suspended' },
+      { name: 'Kharkiv – Sumy', path: [{lat:49.9935,lng:36.2304},{lat:50.5,lng:35.0},{lat:50.9077,lng:34.7981}], status: 'suspended' },
+    ];
+
+    // Humanitarian bus corridors
+    const BUS_ROUTES = [
+      { name: 'Kyiv → Zhytomyr → Lviv', path: [{lat:50.4501,lng:30.5234},{lat:50.2548,lng:28.658},{lat:49.8397,lng:24.0297}], freq: 'Every 2h' },
+      { name: 'Dnipro → Poltava → Kyiv', path: [{lat:48.4647,lng:35.0462},{lat:49.5883,lng:34.5514},{lat:50.4501,lng:30.5234}], freq: 'Every 4h' },
+      { name: 'Odesa → Mykolaiv → Kyiv', path: [{lat:46.4825,lng:30.7233},{lat:46.975,lng:32.0},{lat:48.5,lng:30.7},{lat:50.4501,lng:30.5234}], freq: 'Every 6h' },
+      { name: 'Kharkiv → Poltava → Kyiv', path: [{lat:49.9935,lng:36.2304},{lat:49.5883,lng:34.5514},{lat:50.4501,lng:30.5234}], freq: 'Every 3h' },
+      { name: 'Lviv → Ternopil → Ivano-Frankivsk', path: [{lat:49.8397,lng:24.0297},{lat:49.5535,lng:25.5948},{lat:48.9226,lng:24.7111}], freq: 'Every 2h' },
+      { name: 'Kyiv → Polish border', path: [{lat:50.4501,lng:30.5234},{lat:50.35,lng:27.5},{lat:50.0,lng:24.5},{lat:50.3326,lng:22.1397}], freq: 'Every 3h' },
+    ];
 
     const RISK_ZONES = [
       { name: 'Donetsk Oblast',   lat: 48.0159, lng: 37.8028, radius: 120000, risk: 95 },
@@ -428,12 +527,22 @@
     let map = null;
     let circles = [];
     let corridorLines = [];
+    let trainLines = [];
+    let busLines = [];
     let cityMarkers = [];
     let directionsService = null;
     let directionsRenderer = null;
     let heatmapVisible = true;
     let routesVisible = true;
+    let trainsVisible = true;
+    let busesVisible = true;
     let currentLang = 'en';
+
+    // Click-to-route state
+    let pickMode = false;
+    let pickPoints = [];
+    let pickMarkers = [];
+    let mapClickListener = null;
 
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
@@ -458,6 +567,8 @@
 
       // Draw in order: risk zones first (bottom), then corridors on top, then markers
       renderRiskZones();
+      renderTrainLines();
+      renderBusRoutes();
       renderCorridors();
       renderCityMarkers();
 
@@ -554,6 +665,179 @@
       });
     }
 
+    // ── TRAIN LINES ──
+    function renderTrainLines() {
+      trainLines.forEach(l => l.setMap(null));
+      trainLines = [];
+      TRAIN_LINES.forEach(line => {
+        const isSuspended = line.status === 'suspended';
+        const color = isSuspended ? '#EF4444' : '#818cf8';
+        // Glow layer
+        trainLines.push(new google.maps.Polyline({
+          path: line.path, map,
+          strokeColor: color, strokeWeight: 10, strokeOpacity: 0.08,
+          clickable: false, zIndex: 2,
+        }));
+        // Core rail line
+        trainLines.push(new google.maps.Polyline({
+          path: line.path, map,
+          strokeColor: color, strokeWeight: 2, strokeOpacity: isSuspended ? 0.4 : 0.8,
+          clickable: false, zIndex: 3,
+        }));
+        // Tick marks (railway-style)
+        trainLines.push(new google.maps.Polyline({
+          path: line.path, map,
+          strokeColor: color, strokeWeight: 1, strokeOpacity: 0,
+          icons: [{ icon: { path: 'M -1,0 1,0', strokeOpacity: isSuspended ? 0.25 : 0.55, strokeWeight: 3, scale: 3 }, offset: '0', repeat: '18px' }],
+          clickable: false, zIndex: 3,
+        }));
+      });
+    }
+
+    // ── BUS ROUTES ──
+    function renderBusRoutes() {
+      busLines.forEach(l => l.setMap(null));
+      busLines = [];
+      BUS_ROUTES.forEach(route => {
+        const color = '#fb923c';
+        // Glow
+        busLines.push(new google.maps.Polyline({
+          path: route.path, map,
+          strokeColor: color, strokeWeight: 10, strokeOpacity: 0.07,
+          clickable: false, zIndex: 2,
+        }));
+        // Dashed bus line
+        busLines.push(new google.maps.Polyline({
+          path: route.path, map,
+          strokeColor: color, strokeWeight: 2, strokeOpacity: 0,
+          icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 0.75, strokeWeight: 2.5, scale: 4 }, offset: '0', repeat: '12px' }],
+          clickable: false, zIndex: 3,
+        }));
+      });
+    }
+
+    // ── LAYER TOGGLE ──
+    function toggleLayer(layer, btn) {
+      const isActive = btn.classList.contains('active');
+      btn.classList.toggle('active', !isActive);
+      btn.classList.toggle('inactive', isActive);
+      if (layer === 'corridors') {
+        routesVisible = !isActive;
+        corridorLines.forEach(l => l.setMap(routesVisible ? map : null));
+      } else if (layer === 'trains') {
+        trainsVisible = !isActive;
+        trainLines.forEach(l => l.setMap(trainsVisible ? map : null));
+      } else if (layer === 'buses') {
+        busesVisible = !isActive;
+        busLines.forEach(l => l.setMap(busesVisible ? map : null));
+      }
+    }
+
+    // ── CLICK-TO-ROUTE (PICK MODE) ──
+    function togglePickMode() {
+      if (pickMode) {
+        clearPickMode();
+      } else {
+        pickMode = true;
+        pickPoints = [];
+        document.getElementById('pickModeBtn').classList.add('pick-active');
+        document.getElementById('mapWrap').classList.add('map-pick-mode');
+        document.getElementById('routeHud').classList.remove('hidden');
+        document.getElementById('hud-from').textContent = 'Click origin on map';
+        document.getElementById('hud-from').classList.remove('set');
+        document.getElementById('hud-to').textContent = 'Then click destination';
+        document.getElementById('hud-to').classList.remove('set');
+        document.getElementById('hudGoBtn').disabled = true;
+        // Close tooltip if open
+        document.getElementById('cityTooltip').classList.add('hidden');
+        mapClickListener = map.addListener('click', onMapPickClick);
+      }
+    }
+
+    function onMapPickClick(e) {
+      if (!pickMode) return;
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+
+      // Reverse geocode the clicked point for a friendly label
+      new google.maps.Geocoder().geocode({ location: e.latLng }, (res, st) => {
+        let label = lat.toFixed(3) + ', ' + lng.toFixed(3);
+        if (st === 'OK' && res[0]) {
+          // Try to get a short locality name
+          const locality = res.find(r => r.types.includes('locality'));
+          const admin = res.find(r => r.types.includes('administrative_area_level_2'));
+          label = (locality || admin || res[0]).address_components[0].long_name;
+        }
+
+        if (pickPoints.length === 0) {
+          pickPoints.push({ lat, lng, label });
+          placePinMarker(e.latLng, 'A', '#3b82f6');
+          document.getElementById('hud-from').textContent = label;
+          document.getElementById('hud-from').classList.add('set');
+        } else if (pickPoints.length === 1) {
+          pickPoints.push({ lat, lng, label });
+          placePinMarker(e.latLng, 'B', '#10B981');
+          document.getElementById('hud-to').textContent = label;
+          document.getElementById('hud-to').classList.add('set');
+          document.getElementById('hudGoBtn').disabled = false;
+        } else {
+          // Third click = reset and start over
+          clearPickMarkers();
+          pickPoints = [{ lat, lng, label }];
+          placePinMarker(e.latLng, 'A', '#3b82f6');
+          document.getElementById('hud-from').textContent = label;
+          document.getElementById('hud-from').classList.add('set');
+          document.getElementById('hud-to').textContent = 'Then click destination';
+          document.getElementById('hud-to').classList.remove('set');
+          document.getElementById('hudGoBtn').disabled = true;
+          directionsRenderer.setDirections({ routes: [] });
+          document.getElementById('routeInfo').style.display = 'none';
+        }
+      });
+    }
+
+    function placePinMarker(position, label, color) {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42">
+        <path d="M16 2C9.37 2 4 7.37 4 14c0 9.5 12 26 12 26S28 23.5 28 14c0-6.63-5.37-12-12-12z" fill="${color}" opacity="0.9"/>
+        <circle cx="16" cy="14" r="7" fill="white" opacity="0.15"/>
+        <text x="16" y="18" font-family="monospace" font-size="10" font-weight="700" fill="white" text-anchor="middle">${label}</text>
+      </svg>`;
+      const m = new google.maps.Marker({
+        position, map,
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+          scaledSize: new google.maps.Size(32, 42),
+          anchor: new google.maps.Point(16, 42),
+        },
+        zIndex: 500,
+      });
+      pickMarkers.push(m);
+    }
+
+    function clearPickMarkers() {
+      pickMarkers.forEach(m => m.setMap(null));
+      pickMarkers = [];
+    }
+
+    function hudRoute() {
+      if (pickPoints.length < 2) return;
+      const from = `${pickPoints[0].lat},${pickPoints[0].lng}`;
+      const to   = `${pickPoints[1].lat},${pickPoints[1].lng}`;
+      requestDirections(from, to, false);
+    }
+
+    function clearPickMode() {
+      pickMode = false;
+      pickPoints = [];
+      clearPickMarkers();
+      if (mapClickListener) { google.maps.event.removeListener(mapClickListener); mapClickListener = null; }
+      document.getElementById('pickModeBtn').classList.remove('pick-active');
+      document.getElementById('mapWrap').classList.remove('map-pick-mode');
+      document.getElementById('routeHud').classList.add('hidden');
+      directionsRenderer.setDirections({ routes: [] });
+      document.getElementById('routeInfo').style.display = 'none';
+    }
+
     // ── CITY MARKERS ──
     function riskToMarkerColor(risk, label) {
       if (label === 'Safe' || risk <= 15) return '#10B981';
@@ -586,10 +870,12 @@
     }
 
     // ── DIRECTIONS ──
-    function requestDirections(from, to) {
+    function requestDirections(from, to, appendUkraine = true) {
       if (!directionsService) return;
+      const origin = appendUkraine ? from + ', Ukraine' : from;
+      const destination = appendUkraine ? to + ', Ukraine' : to;
       directionsService.route({
-        origin: from, destination: to,
+        origin, destination,
         travelMode: google.maps.TravelMode.DRIVING, region: 'UA',
       }, (result, status) => {
         if (status === google.maps.DirectionsStatus.OK) {
@@ -609,10 +895,6 @@
     function toggleHeatmap() {
       heatmapVisible = !heatmapVisible;
       circles.forEach(c => c.setMap(heatmapVisible ? map : null));
-    }
-    function toggleRoutes() {
-      routesVisible = !routesVisible;
-      corridorLines.forEach(l => l.setMap(routesVisible ? map : null));
     }
 
     // ── CITY TOOLTIP ──
@@ -702,7 +984,7 @@
       const from = document.getElementById('fromLocation').value.trim();
       const to = document.getElementById('toLocation').value.trim();
       if (!from || !to) { alert('Please enter both a pickup location and a destination.'); return; }
-      requestDirections(from + ', Ukraine', to);
+      requestDirections(from, to, true);
       document.getElementById('cityTooltip').classList.add('hidden');
     }
 
@@ -715,7 +997,7 @@
       const from = document.getElementById('ride-from').value.trim();
       const to = document.getElementById('ride-to').value.trim();
       if (!from || !to) { alert('Please enter your pickup and destination.'); return; }
-      if (map && directionsService) requestDirections(from + ', Ukraine', to);
+      if (map && directionsService) requestDirections(from, to, true);
       document.getElementById('ridePanel').classList.add('hidden');
       showToast('Transport requested: ' + from + ' → ' + to + '. A driver will contact you shortly.');
     }
