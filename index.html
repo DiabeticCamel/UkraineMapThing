@@ -4,53 +4,222 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafePath Ukraine — Crisis Navigation & Refugee Transport</title>
-  <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-card: #1c2330;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #484f58;
+      --accent-blue: #1A56DB;
+      --accent-blue-light: #3b82f6;
+      --accent-green: #10B981;
+      --accent-amber: #F59E0B;
+      --accent-red: #EF4444;
+      --accent-crimson: #7F1D1D;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --sidebar-width: 260px;
+      --topbar-height: 56px;
+      --alert-height: 36px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--font-display); background: var(--bg-primary); color: var(--text-primary); overflow: hidden; }
+
+    /* TOPBAR */
+    .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-height); background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; padding: 0 20px; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .logo-icon { width: 34px; height: 34px; background: var(--accent-blue); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2.5; }
+    .logo-name { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; color: var(--text-primary); }
+    .logo-sub { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
+    .search-wrap { flex: 1; max-width: 400px; position: relative; }
+    .search-ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; stroke: var(--text-muted); fill: none; pointer-events: none; }
+    .search-wrap input { width: 100%; height: 34px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 12px 0 34px; color: var(--text-primary); font-family: var(--font-mono); font-size: 12px; outline: none; transition: border-color 0.15s; }
+    .search-wrap input:focus { border-color: var(--accent-blue); }
+    .search-wrap input::placeholder { color: var(--text-muted); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
+    .live-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: #fca5a5; background: rgba(127,29,29,0.4); border: 1px solid rgba(239,68,68,0.3); padding: 3px 10px; border-radius: 99px; }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #EF4444; animation: blink 1.4s infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+    .sync-badge { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+    .lang-btn { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); font-family: var(--font-mono); font-size: 11px; padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer; }
+    .lang-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+
+    /* ALERT BAR */
+    .alert-bar { position: fixed; top: var(--topbar-height); left: 0; right: 0; height: var(--alert-height); background: var(--accent-crimson); border-bottom: 1px solid rgba(239,68,68,0.4); display: flex; align-items: center; padding: 0 20px; font-size: 12px; font-family: var(--font-mono); color: #fecaca; gap: 8px; z-index: 99; }
+    .alert-pulse { width: 7px; height: 7px; border-radius: 50%; background: #fca5a5; animation: blink 1s infinite; flex-shrink: 0; }
+    .alert-close { margin-left: auto; background: transparent; border: none; color: #fca5a5; cursor: pointer; font-size: 14px; padding: 2px 6px; }
+
+    /* LAYOUT */
+    .app-main { display: flex; position: fixed; top: calc(var(--topbar-height) + var(--alert-height)); left: 0; right: 0; bottom: 0; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-width); flex-shrink: 0; background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; z-index: 10; }
+    .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .stab { flex: 1; padding: 10px 4px; font-family: var(--font-display); font-size: 12px; font-weight: 600; color: var(--text-muted); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; }
+    .stab:hover { color: var(--text-secondary); }
+    .stab.active { color: var(--accent-blue-light); border-bottom-color: var(--accent-blue-light); }
+    .tab-panel { flex: 1; overflow-y: auto; }
+    .tab-panel.hidden { display: none; }
+    .tab-panel::-webkit-scrollbar { width: 4px; }
+    .tab-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .panel-section { padding: 14px 14px 0; }
+    .panel-section:last-child { padding-bottom: 14px; }
+    .section-label { font-family: var(--font-mono); font-size: 10px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+
+    /* LEGEND */
+    .legend { display: flex; flex-direction: column; gap: 5px; margin-bottom: 4px; }
+    .legend-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono); }
+    .swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ZONE CARDS */
+    .zone-list { display: flex; flex-direction: column; gap: 6px; }
+    .zone-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 9px 11px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+    .zone-card:hover { border-color: var(--border-hover); background: #222a38; }
+    .zone-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .zone-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .zone-meta { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 6px; }
+    .zbadge { font-size: 10px; font-family: var(--font-mono); font-weight: 500; padding: 2px 8px; border-radius: 99px; }
+    .zbadge.safe { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .zbadge.moderate { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .zbadge.danger { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .zbadge.critical { background: rgba(127,29,29,0.3); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+    .zone-btn { width: 100%; padding: 5px; font-size: 11px; font-family: var(--font-mono); background: transparent; border: 1px solid var(--border); color: var(--text-secondary); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; }
+    .zone-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue-light); }
+
+    /* TRANSPORT */
+    .transport-list { display: flex; flex-direction: column; gap: 6px; }
+    .tcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 9px 11px; }
+    .tcard-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .tcard-name { font-size: 13px; font-weight: 600; }
+    .tcard-meta { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+    .request-form { display: flex; flex-direction: column; gap: 10px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 10px; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-group input { height: 32px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 10px; color: var(--text-primary); font-family: var(--font-mono); font-size: 12px; outline: none; transition: border-color 0.15s; }
+    .form-group input:focus { border-color: var(--accent-blue); }
+    .form-group input::placeholder { color: var(--text-muted); }
+    .transport-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .ttype-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 6px; text-align: center; cursor: pointer; transition: all 0.15s; }
+    .ttype-card:hover, .ttype-card.selected { border-color: var(--accent-blue); background: rgba(26,86,219,0.1); }
+    .ttype-icon { font-size: 18px; margin-bottom: 3px; }
+    .ttype-label { font-size: 10px; color: var(--text-secondary); font-family: var(--font-mono); }
+    .find-route-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 36px; background: var(--accent-blue); border: none; border-radius: var(--radius-md); color: white; font-family: var(--font-display); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .find-route-btn:hover { background: #1648c0; }
+
+    /* SOURCES */
+    .sources-list { display: flex; flex-direction: column; gap: 5px; }
+    .src-item { display: flex; align-items: center; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 10px; font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); }
+    .src-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .src-status { margin-left: auto; font-size: 10px; }
+    .slider-row { display: flex; align-items: center; gap: 10px; }
+    .slider-row input { flex: 1; }
+    .slider-row span { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--text-primary); min-width: 28px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; }
+    .stat-n { font-size: 22px; font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
+    .stat-l { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; }
+
+    /* MAP */
+    .map-wrap { flex: 1; position: relative; overflow: hidden; }
+    #map { width: 100%; height: 100%; }
+    .map-controls-overlay { position: absolute; top: 14px; right: 14px; display: flex; flex-direction: column; gap: 6px; z-index: 5; }
+    .mc-btn { width: 34px; height: 34px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); font-size: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; }
+    .mc-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+
+    /* CITY TOOLTIP */
+    .city-tooltip { position: absolute; top: 14px; left: 14px; z-index: 10; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; min-width: 200px; animation: fadeIn 0.15s ease; }
+    .city-tooltip.hidden { display: none; }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform: translateY(0); } }
+    .ct-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .ct-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+    .ct-rows { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+    .ct-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-family: var(--font-mono); }
+    .ct-row span { color: var(--text-muted); }
+    .ct-row strong { color: var(--text-primary); }
+    .ct-actions { display: flex; gap: 6px; }
+    .ct-btn-primary { flex: 1; height: 30px; background: var(--accent-blue); border: none; border-radius: var(--radius-sm); color: white; font-size: 11px; font-family: var(--font-mono); cursor: pointer; }
+    .ct-btn-primary:hover { background: #1648c0; }
+    .ct-btn-sec { height: 30px; padding: 0 12px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-muted); font-size: 11px; font-family: var(--font-mono); cursor: pointer; }
+    .ct-btn-sec:hover { border-color: var(--border-hover); color: var(--text-primary); }
+
+    /* RIDE PANEL */
+    .ride-panel { position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 16px 20px; animation: slideUp 0.2s ease; }
+    .ride-panel.hidden { display: none; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .ride-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .ride-header h2 { font-size: 16px; font-weight: 700; }
+    .ride-header button { background: transparent; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; }
+    .ride-stats { display: flex; gap: 20px; margin-bottom: 14px; }
+    .rs { display: flex; flex-direction: column; }
+    .rs-n { font-size: 18px; font-weight: 700; font-family: var(--font-mono); color: var(--accent-green); }
+    .rs-l { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; }
+    .vehicle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .vcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.15s; }
+    .vcard:hover, .vcard.selected { border-color: var(--accent-blue); background: rgba(26,86,219,0.12); }
+    .vcard-icon { font-size: 22px; margin-bottom: 4px; }
+    .vcard-name { font-size: 11px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+    .vcard-avail { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
+    .ride-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .ride-inputs input { height: 34px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 12px; color: var(--text-primary); font-family: var(--font-mono); font-size: 12px; outline: none; }
+    .ride-inputs input:focus { border-color: var(--accent-blue); }
+    .ride-inputs input::placeholder { color: var(--text-muted); }
+    .ride-confirm-btn { width: 100%; height: 40px; background: var(--accent-green); border: none; border-radius: var(--radius-md); color: white; font-family: var(--font-display); font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.15s; margin-bottom: 8px; }
+    .ride-confirm-btn:hover { background: #059669; }
+    .ride-disclaimer { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); text-align: center; }
+
+    /* ROUTE INFO BAR */
+    #routeInfo { display: none; position: fixed; bottom: 16px; left: calc(var(--sidebar-width) + 16px); background: var(--bg-card); border: 1px solid rgba(16,185,129,0.4); border-radius: var(--radius-md); padding: 8px 16px; font-family: var(--font-mono); font-size: 12px; color: #34d399; z-index: 50; }
+
+    /* RANGE SLIDER */
+    input[type=range] { -webkit-appearance: none; height: 3px; background: var(--border); border-radius: 2px; outline: none; width: 100%; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; }
+
+    /* GOOGLE MAPS OVERRIDES */
+    .gm-style .gm-style-iw-c { background: var(--bg-secondary) !important; border: 1px solid var(--border) !important; box-shadow: none !important; }
+    .gm-style-iw-d { color: var(--text-primary) !important; }
+  </style>
 </head>
 <body>
 
-  <!-- TOP NAV -->
   <header class="topbar">
     <div class="logo">
       <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M12 2L15 9H22L16.5 13.5L18.5 21L12 17L5.5 21L7.5 13.5L2 9H9Z"/>
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2L15 9H22L16.5 13.5L18.5 21L12 17L5.5 21L7.5 13.5L2 9H9Z"/></svg>
       </div>
       <div>
-        <div class="logo-name">SafePath</div>
-        <div class="logo-sub">Ukraine Crisis Navigation</div>
+        <div class="logo-name">SafePath Ukraine</div>
+        <div class="logo-sub">Crisis Navigation & Refugee Transport</div>
       </div>
     </div>
-
     <div class="search-wrap">
-      <svg class="search-ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="8.5" cy="8.5" r="5.5"/><path d="M13.5 13.5L18 18"/>
-      </svg>
-      <input id="searchInput" type="text" placeholder="Search city or region..." autocomplete="off" />
+      <svg class="search-ico" viewBox="0 0 20 20" stroke-width="2"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13.5 13.5L18 18"/></svg>
+      <input id="searchInput" type="text" placeholder="Search city or region — press Enter..." autocomplete="off" />
     </div>
-
     <div class="topbar-right">
-      <div class="live-badge">
-        <span class="live-dot"></span>LIVE
-      </div>
-      <div class="sync-badge">↻ Updated <span id="lastUpdate">just now</span></div>
+      <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+      <div class="sync-badge">↻ <span id="lastUpdate">just now</span></div>
       <button class="lang-btn" onclick="toggleLang()">UA / EN</button>
     </div>
   </header>
 
-  <!-- ALERT BAR -->
   <div class="alert-bar" id="alertBar">
     <span class="alert-pulse"></span>
-    <strong>ACTIVE ALERT:</strong>&nbsp;Increased shelling reported near Zaporizhzhia corridor — avoid E105 highway. Route recalculated.
+    <span id="alertText"><strong>ACTIVE ALERT:</strong>&nbsp;Increased shelling near Zaporizhzhia corridor — avoid E105 highway. Route recalculated.</span>
     <button class="alert-close" onclick="document.getElementById('alertBar').style.display='none'">✕</button>
   </div>
 
-  <!-- MAIN LAYOUT -->
   <main class="app-main">
-
-    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-tabs">
         <button class="stab active" data-tab="map" onclick="switchTab('map',this)">Map</button>
@@ -58,64 +227,43 @@
         <button class="stab" data-tab="sources" onclick="switchTab('sources',this)">Sources</button>
       </div>
 
-      <!-- TAB: MAP -->
       <div class="tab-panel" id="tab-map">
         <div class="panel-section">
           <div class="section-label">Safety Gradient</div>
           <div class="legend">
-            <div class="legend-row"><span class="swatch" style="background:#ffffff;border:1px solid #ccc;"></span>Unaffected / Safe</div>
+            <div class="legend-row"><span class="swatch" style="background:#ffffff;border:1px solid #333;"></span>Unaffected / Safe</div>
             <div class="legend-row"><span class="swatch" style="background:#FFCDD2;"></span>Low risk</div>
             <div class="legend-row"><span class="swatch" style="background:#EF9A9A;"></span>Moderate risk</div>
             <div class="legend-row"><span class="swatch" style="background:#E53935;"></span>High risk</div>
             <div class="legend-row"><span class="swatch" style="background:#7F0000;"></span>Active conflict</div>
           </div>
         </div>
-
         <div class="panel-section">
           <div class="section-label">Region Status</div>
-          <div class="zone-list" id="zoneList">
-            <!-- injected by JS -->
-          </div>
+          <div class="zone-list" id="zoneList"></div>
         </div>
       </div>
 
-      <!-- TAB: TRANSPORT -->
       <div class="tab-panel hidden" id="tab-transport">
         <div class="panel-section">
           <div class="section-label">Available Transport</div>
-          <div class="transport-list" id="transportList">
-            <!-- injected by JS -->
-          </div>
+          <div class="transport-list" id="transportList"></div>
         </div>
         <div class="panel-section">
           <div class="section-label">Request Evacuation</div>
           <div class="request-form">
-            <div class="form-group">
-              <label>From</label>
-              <input type="text" id="fromLocation" placeholder="Your current location..." />
-            </div>
-            <div class="form-group">
-              <label>To</label>
-              <input type="text" id="toLocation" placeholder="Destination city or border..." />
-            </div>
-            <div class="transport-type-grid" id="transportTypeGrid">
-              <!-- injected by JS -->
-            </div>
-            <button class="find-route-btn" onclick="findSafeRoute()">
-              Find Safest Route
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </button>
+            <div class="form-group"><label>From</label><input type="text" id="fromLocation" placeholder="Your current location..." /></div>
+            <div class="form-group"><label>To</label><input type="text" id="toLocation" placeholder="Destination city or border..." /></div>
+            <div class="transport-type-grid" id="transportTypeGrid"></div>
+            <button class="find-route-btn" onclick="findSafeRoute()">Find Safest Route →</button>
           </div>
         </div>
       </div>
 
-      <!-- TAB: SOURCES -->
       <div class="tab-panel hidden" id="tab-sources">
         <div class="panel-section">
           <div class="section-label">Live Data Sources</div>
-          <div class="sources-list" id="sourcesList">
-            <!-- injected by JS -->
-          </div>
+          <div class="sources-list" id="sourcesList"></div>
         </div>
         <div class="panel-section">
           <div class="section-label">Map Refresh Rate</div>
@@ -136,35 +284,32 @@
       </div>
     </aside>
 
-    <!-- MAP CONTAINER -->
     <div class="map-wrap" id="mapWrap">
       <div id="map"></div>
 
-      <!-- MAP OVERLAYS -->
       <div class="map-controls-overlay">
         <button class="mc-btn" title="Reset view" onclick="resetMapView()">⌂</button>
-        <button class="mc-btn" title="Toggle heat map" onclick="toggleHeatmap()">◉</button>
-        <button class="mc-btn" title="Toggle routes" onclick="toggleRoutes()">↔</button>
+        <button class="mc-btn" title="Toggle heat zones" onclick="toggleHeatmap()">◉</button>
+        <button class="mc-btn" title="Toggle corridors" onclick="toggleRoutes()">↔</button>
+        <button class="mc-btn" title="Request transport" onclick="document.getElementById('ridePanel').classList.remove('hidden')">🚗</button>
       </div>
 
-      <!-- TOOLTIP CARD -->
       <div class="city-tooltip hidden" id="cityTooltip">
         <div class="ct-header">
           <span class="ct-name" id="ct-name">—</span>
-          <span class="ct-badge" id="ct-badge">—</span>
+          <span class="ct-badge zbadge" id="ct-badge">—</span>
         </div>
         <div class="ct-rows">
           <div class="ct-row"><span>Risk score</span><strong id="ct-score">—</strong></div>
           <div class="ct-row"><span>Open routes</span><strong id="ct-routes">—</strong></div>
-          <div class="ct-row"><span>Population displaced</span><strong id="ct-displaced">—</strong></div>
+          <div class="ct-row"><span>Displaced</span><strong id="ct-displaced">—</strong></div>
         </div>
         <div class="ct-actions">
-          <button onclick="requestRide()" class="ct-btn-primary">Request transport</button>
-          <button onclick="document.getElementById('cityTooltip').classList.add('hidden')" class="ct-btn-sec">Close</button>
+          <button class="ct-btn-primary" onclick="requestRide()">Request transport</button>
+          <button class="ct-btn-sec" onclick="document.getElementById('cityTooltip').classList.add('hidden')">Close</button>
         </div>
       </div>
 
-      <!-- RIDE REQUEST PANEL (Uber-style) -->
       <div class="ride-panel hidden" id="ridePanel">
         <div class="ride-header">
           <h2>Evacuation Transport</h2>
@@ -176,50 +321,448 @@
           <div class="rs"><span class="rs-n">Free</span><span class="rs-l">service</span></div>
         </div>
         <div class="vehicle-grid">
-          <div class="vcard selected" onclick="selectVehicle(this,'car')">
-            <div class="vcard-icon">🚗</div>
-            <div class="vcard-name">Car</div>
-            <div class="vcard-avail">38 avail</div>
-          </div>
-          <div class="vcard" onclick="selectVehicle(this,'bus')">
-            <div class="vcard-icon">🚌</div>
-            <div class="vcard-name">Bus convoy</div>
-            <div class="vcard-avail">14 avail</div>
-          </div>
-          <div class="vcard" onclick="selectVehicle(this,'medical')">
-            <div class="vcard-icon">🚑</div>
-            <div class="vcard-name">Medical</div>
-            <div class="vcard-avail">6 avail</div>
-          </div>
-          <div class="vcard" onclick="selectVehicle(this,'train')">
-            <div class="vcard-icon">🚂</div>
-            <div class="vcard-name">Train</div>
-            <div class="vcard-avail">Delayed</div>
-          </div>
+          <div class="vcard selected" onclick="selectVehicle(this)"><div class="vcard-icon">🚗</div><div class="vcard-name">Car</div><div class="vcard-avail">38 avail</div></div>
+          <div class="vcard" onclick="selectVehicle(this)"><div class="vcard-icon">🚌</div><div class="vcard-name">Bus convoy</div><div class="vcard-avail">14 avail</div></div>
+          <div class="vcard" onclick="selectVehicle(this)"><div class="vcard-icon">🚑</div><div class="vcard-name">Medical</div><div class="vcard-avail">6 avail</div></div>
+          <div class="vcard" onclick="selectVehicle(this)"><div class="vcard-icon">🚂</div><div class="vcard-name">Train</div><div class="vcard-avail">Delayed</div></div>
         </div>
         <div class="ride-inputs">
-          <input type="text" id="ride-from" placeholder="Pickup location..."/>
-          <input type="text" id="ride-to" placeholder="Destination (e.g. Lviv, Polish border)..."/>
+          <input type="text" id="ride-from" placeholder="Pickup location..." />
+          <input type="text" id="ride-to" placeholder="Destination (e.g. Lviv, Polish border)..." />
         </div>
-        <button class="ride-confirm-btn" onclick="confirmRide()">
-          Confirm & Find Safe Route
-        </button>
-        <p class="ride-disclaimer">This is a free humanitarian service. All drivers are verified volunteers.</p>
+        <button class="ride-confirm-btn" onclick="confirmRide()">Confirm & Find Safe Route</button>
+        <p class="ride-disclaimer">Free humanitarian service. All drivers are verified volunteers.</p>
       </div>
+
+      <div id="routeInfo"></div>
     </div>
   </main>
 
-  <!-- GOOGLE MAPS API — replace YOUR_API_KEY -->
   <script>
-    window.GOOGLE_MAPS_API_KEY = 'AIzaSyAx2CCxxRNDLjfQOzk8bcyJUzqlCRJ39j0';
+    // ── DATA ──
+    const UKRAINE_CENTER = { lat: 48.3794, lng: 31.1656 };
+    const UKRAINE_ZOOM = 6;
+
+    const RISK_ZONES = [
+      { name: 'Donetsk Oblast',   lat: 48.0159, lng: 37.8028, radius: 120000, risk: 95 },
+      { name: 'Luhansk Oblast',   lat: 48.5740, lng: 39.3078, radius: 110000, risk: 92 },
+      { name: 'Kherson Oblast',   lat: 46.6354, lng: 32.6169, radius: 90000,  risk: 88 },
+      { name: 'Zaporizhzhia',     lat: 47.8388, lng: 35.1396, radius: 80000,  risk: 82 },
+      { name: 'Kharkiv',         lat: 49.9935, lng: 36.2304, radius: 75000,  risk: 78 },
+      { name: 'Mykolaiv',        lat: 46.9750, lng: 32.0000, radius: 70000,  risk: 62 },
+      { name: 'Sumy Oblast',     lat: 50.9077, lng: 34.7981, radius: 65000,  risk: 58 },
+      { name: 'Dnipropetrovsk',  lat: 48.4647, lng: 35.0462, radius: 70000,  risk: 50 },
+      { name: 'Kyiv',            lat: 50.4501, lng: 30.5234, radius: 60000,  risk: 41 },
+      { name: 'Odesa',           lat: 46.4825, lng: 30.7233, radius: 55000,  risk: 38 },
+      { name: 'Poltava',         lat: 49.5883, lng: 34.5514, radius: 50000,  risk: 22 },
+      { name: 'Lviv Oblast',     lat: 49.8397, lng: 24.0297, radius: 80000,  risk: 4  },
+      { name: 'Ivano-Frankivsk', lat: 48.9226, lng: 24.7111, radius: 60000,  risk: 6  },
+      { name: 'Ternopil',        lat: 49.5535, lng: 25.5948, radius: 55000,  risk: 7  },
+      { name: 'Zakarpattia',     lat: 48.6208, lng: 22.2879, radius: 60000,  risk: 3  },
+      { name: 'Chernivtsi',      lat: 48.2921, lng: 25.9310, radius: 50000,  risk: 5  },
+    ];
+
+    const CITIES = [
+      { name: 'Kyiv',            lat: 50.4501, lng: 30.5234, risk: 41, routes: 2, displaced: '~340k', label: 'Moderate' },
+      { name: 'Lviv',            lat: 49.8397, lng: 24.0297, risk: 4,  routes: 3, displaced: '~12k',  label: 'Safe' },
+      { name: 'Kharkiv',         lat: 49.9935, lng: 36.2304, risk: 78, routes: 1, displaced: '~620k', label: 'High risk' },
+      { name: 'Zaporizhzhia',    lat: 47.8388, lng: 35.1396, risk: 82, routes: 0, displaced: '~290k', label: 'High risk' },
+      { name: 'Dnipro',          lat: 48.4647, lng: 35.0462, risk: 50, routes: 2, displaced: '~180k', label: 'Moderate' },
+      { name: 'Odesa',           lat: 46.4825, lng: 30.7233, risk: 38, routes: 1, displaced: '~95k',  label: 'Moderate' },
+      { name: 'Mykolaiv',        lat: 46.9750, lng: 32.0000, risk: 62, routes: 1, displaced: '~210k', label: 'High risk' },
+      { name: 'Kherson',         lat: 46.6354, lng: 32.6169, risk: 91, routes: 0, displaced: '~310k', label: 'Active conflict' },
+      { name: 'Poltava',         lat: 49.5883, lng: 34.5514, risk: 22, routes: 2, displaced: '~45k',  label: 'Low risk' },
+      { name: 'Ivano-Frankivsk', lat: 48.9226, lng: 24.7111, risk: 6,  routes: 3, displaced: '~8k',   label: 'Safe' },
+      { name: 'Ternopil',        lat: 49.5535, lng: 25.5948, risk: 7,  routes: 3, displaced: '~6k',   label: 'Safe' },
+      { name: 'Sumy',            lat: 50.9077, lng: 34.7981, risk: 58, routes: 1, displaced: '~155k', label: 'Moderate' },
+    ];
+
+    const SAFE_CORRIDORS = [
+      { from: { lat: 50.4501, lng: 30.5234 }, to: { lat: 49.8397, lng: 24.0297 }, waypoints: [{ lat: 50.35, lng: 28.65 }, { lat: 50.08, lng: 26.25 }], color: '#10B981' },
+      { from: { lat: 50.4501, lng: 30.5234 }, to: { lat: 50.3326, lng: 22.1397 }, waypoints: [{ lat: 50.2548, lng: 28.658 }, { lat: 49.8397, lng: 24.0297 }], color: '#10B981' },
+      { from: { lat: 48.4647, lng: 35.0462 }, to: { lat: 50.4501, lng: 30.5234 }, waypoints: [], color: '#F59E0B' },
+      { from: { lat: 46.4825, lng: 30.7233 }, to: { lat: 49.8397, lng: 24.0297 }, waypoints: [{ lat: 48.7482, lng: 30.2142 }, { lat: 49.3, lng: 26.85 }], color: '#F59E0B' },
+    ];
+
+    const TRANSPORT_OPTIONS = [
+      { icon: '🚗', name: 'Volunteer cars',      meta: 'Next pickup: ~12 min · All regions',       avail: '38 online', status: 'safe' },
+      { icon: '🚌', name: 'Bus convoy',           meta: 'Next departure: 45 min · Lviv bound',      avail: '14 avail',  status: 'safe' },
+      { icon: '🚂', name: 'Ukrzaliznytsia',       meta: 'Platform 3 · Running ~90min late',         avail: 'Delayed',   status: 'moderate' },
+      { icon: '✈️', name: 'Humanitarian flight', meta: 'Boryspil Airport · Registration req.',     avail: 'Limited',   status: 'moderate' },
+      { icon: '🚑', name: 'Medical convoy',       meta: 'Priority: wounded + elderly',              avail: '6 avail',   status: 'safe' },
+    ];
+
+    const DATA_SOURCES = [
+      { name: 'Google Maps Routes API', status: 'live',      color: '#10B981' },
+      { name: 'ACLED Conflict Data',    status: 'live',      color: '#10B981' },
+      { name: 'UN OCHA ReliefWeb',      status: 'live',      color: '#10B981' },
+      { name: 'Ukrzaliznytsia API',     status: 'live',      color: '#10B981' },
+      { name: 'ISW Daily Maps',         status: '15m delay', color: '#F59E0B' },
+      { name: 'UNHCR Displacement',     status: 'live',      color: '#10B981' },
+      { name: 'Liveuamap Alerts',       status: 'live',      color: '#10B981' },
+      { name: 'NASA FIRMS Fire/Smoke',  status: '15m delay', color: '#F59E0B' },
+    ];
+
+    const DARK_MAP_STYLE = [
+      { elementType: 'geometry', stylers: [{ color: '#1a2433' }] },
+      { elementType: 'labels.text.fill', stylers: [{ color: '#8b949e' }] },
+      { elementType: 'labels.text.stroke', stylers: [{ color: '#0d1117' }] },
+      { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#3d5166' }] },
+      { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#1e2d3d' }] },
+      { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
+      { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#162030' }] },
+      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2d3f52' }] },
+      { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1a2433' }] },
+      { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
+      { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3d5166' }] },
+      { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#243448' }] },
+      { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#94a3b8' }] },
+      { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#1e2d3d' }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d1f2d' }] },
+      { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4a6880' }] },
+    ];
+
+    // ── MAP STATE ──
+    let map = null;
+    let circles = [];
+    let corridorLines = [];
+    let cityMarkers = [];
+    let directionsService = null;
+    let directionsRenderer = null;
+    let heatmapVisible = true;
+    let routesVisible = true;
+    let currentLang = 'en';
+
+    // ── INIT MAP — called by Google Maps callback ──
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: UKRAINE_CENTER,
+        zoom: UKRAINE_ZOOM,
+        minZoom: 5,
+        maxZoom: 14,
+        styles: DARK_MAP_STYLE,
+        disableDefaultUI: true,
+        restriction: {
+          latLngBounds: { north: 54, south: 43, west: 19, east: 42 },
+          strictBounds: false,
+        },
+      });
+
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer({
+        suppressMarkers: true,
+        polylineOptions: { strokeColor: '#10B981', strokeWeight: 5, strokeOpacity: 0.9 },
+      });
+      directionsRenderer.setMap(map);
+
+      renderRiskZones();
+      renderCityMarkers();
+      renderCorridors();
+      populateZoneList();
+      populateTransportList();
+      populateTransportTypeGrid();
+      populateSourcesList();
+      startUpdateTicker();
+      startAlertRotation();
+    }
+
+    // ── RISK ZONES ──
+    function riskToColor(risk) {
+      if (risk <= 10) return { fill: '#ffffff', opacity: 0.0 };
+      if (risk <= 25) return { fill: '#FFCDD2', opacity: 0.22 };
+      if (risk <= 45) return { fill: '#EF9A9A', opacity: 0.32 };
+      if (risk <= 65) return { fill: '#E53935', opacity: 0.42 };
+      if (risk <= 80) return { fill: '#C62828', opacity: 0.52 };
+      return { fill: '#7F0000', opacity: 0.62 };
+    }
+
+    function renderRiskZones() {
+      circles.forEach(c => c.setMap(null));
+      circles = [];
+      RISK_ZONES.forEach(zone => {
+        const { fill, opacity } = riskToColor(zone.risk);
+        if (zone.risk > 30) {
+          circles.push(new google.maps.Circle({
+            map, center: { lat: zone.lat, lng: zone.lng },
+            radius: zone.radius * 1.6, fillColor: fill,
+            fillOpacity: opacity * 0.22, strokeWeight: 0, clickable: false,
+          }));
+        }
+        circles.push(new google.maps.Circle({
+          map, center: { lat: zone.lat, lng: zone.lng },
+          radius: zone.radius, fillColor: fill, fillOpacity: opacity,
+          strokeColor: fill, strokeWeight: zone.risk > 60 ? 1 : 0,
+          strokeOpacity: 0.4, clickable: false,
+        }));
+      });
+    }
+
+    // ── CITY MARKERS ──
+    function riskToMarkerColor(risk, label) {
+      if (label === 'Safe' || risk <= 15) return '#10B981';
+      if (label === 'Low risk' || risk <= 30) return '#34d399';
+      if (label === 'Moderate' || risk <= 55) return '#F59E0B';
+      if (label === 'High risk' || risk <= 80) return '#EF4444';
+      return '#7F0000';
+    }
+
+    function renderCityMarkers() {
+      cityMarkers.forEach(m => m.setMap(null));
+      cityMarkers = [];
+      CITIES.forEach(city => {
+        const color = riskToMarkerColor(city.risk, city.label);
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36"><path d="M14 2C8.48 2 4 6.48 4 12c0 7.5 10 22 10 22S24 19.5 24 12c0-5.52-4.48-10-10-10z" fill="${color}"/><circle cx="14" cy="12" r="4" fill="white" opacity="0.9"/></svg>`;
+        const marker = new google.maps.Marker({
+          position: { lat: city.lat, lng: city.lng },
+          map,
+          title: city.name,
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+            scaledSize: new google.maps.Size(28, 36),
+            anchor: new google.maps.Point(14, 36),
+          },
+          zIndex: 100 + city.risk,
+        });
+        marker.addListener('click', () => showCityTooltip(city));
+        cityMarkers.push(marker);
+      });
+    }
+
+    // ── CORRIDORS ──
+    function renderCorridors() {
+      corridorLines.forEach(l => l.setMap(null));
+      corridorLines = [];
+      SAFE_CORRIDORS.forEach(corridor => {
+        const path = [corridor.from, ...corridor.waypoints, corridor.to];
+        corridorLines.push(new google.maps.Polyline({
+          path, map, strokeColor: corridor.color,
+          strokeWeight: 10, strokeOpacity: 0.1, clickable: false,
+        }));
+        corridorLines.push(new google.maps.Polyline({
+          path, map, strokeColor: corridor.color, strokeWeight: 2.5, strokeOpacity: 0,
+          icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 0.8, strokeWeight: 2.5, scale: 4 }, offset: '0', repeat: '16px' }],
+          clickable: false,
+        }));
+      });
+    }
+
+    // ── DIRECTIONS ──
+    function requestDirections(from, to) {
+      if (!directionsService) return;
+      directionsService.route({
+        origin: from, destination: to,
+        travelMode: google.maps.TravelMode.DRIVING, region: 'UA',
+      }, (result, status) => {
+        if (status === google.maps.DirectionsStatus.OK) {
+          directionsRenderer.setDirections(result);
+          const leg = result.routes[0].legs[0];
+          const bar = document.getElementById('routeInfo');
+          bar.textContent = 'Route: ' + leg.distance.text + ' · Est. time: ' + leg.duration.text;
+          bar.style.display = 'block';
+        } else {
+          alert('Could not calculate route: ' + status + '. Please check locations and try again.');
+        }
+      });
+    }
+
+    // ── MAP CONTROLS ──
+    function resetMapView() { map.setCenter(UKRAINE_CENTER); map.setZoom(UKRAINE_ZOOM); }
+    function toggleHeatmap() { heatmapVisible = !heatmapVisible; circles.forEach(c => c.setMap(heatmapVisible ? map : null)); }
+    function toggleRoutes() { routesVisible = !routesVisible; corridorLines.forEach(l => l.setMap(routesVisible ? map : null)); }
+
+    // ── CITY TOOLTIP ──
+    function labelToClass(label) {
+      if (label === 'Safe' || label === 'Low risk') return 'safe';
+      if (label === 'Moderate') return 'moderate';
+      if (label === 'High risk') return 'danger';
+      return 'critical';
+    }
+
+    function showCityTooltip(city) {
+      document.getElementById('ct-name').textContent = city.name;
+      document.getElementById('ct-score').textContent = city.risk + ' / 100';
+      document.getElementById('ct-routes').textContent = city.routes + ' open';
+      document.getElementById('ct-displaced').textContent = city.displaced;
+      const badge = document.getElementById('ct-badge');
+      badge.textContent = city.label;
+      badge.className = 'ct-badge zbadge ' + labelToClass(city.label);
+      document.getElementById('cityTooltip').classList.remove('hidden');
+      document.getElementById('ride-from').value = city.name;
+      document.getElementById('fromLocation').value = city.name;
+    }
+
+    // ── UI POPULATION ──
+    function populateZoneList() {
+      const featured = CITIES.filter(c => ['Kyiv','Lviv','Kharkiv','Zaporizhzhia','Odesa','Dnipro','Kherson'].includes(c.name));
+      document.getElementById('zoneList').innerHTML = featured.map(city => `
+        <div class="zone-card" onclick="focusCity('${city.name}',${city.lat},${city.lng})">
+          <div class="zone-card-top">
+            <span class="zone-name">${city.name}</span>
+            <span class="zbadge ${labelToClass(city.label)}">${city.label}</span>
+          </div>
+          <div class="zone-meta">Risk: ${city.risk}/100 · ${city.routes} open route${city.routes !== 1 ? 's' : ''}</div>
+          <button class="zone-btn" onclick="event.stopPropagation();zoneAction('${city.name}','${city.label}')">
+            ${city.label === 'Safe' || city.label === 'Low risk' ? 'Set as destination →' : 'View evacuation routes →'}
+          </button>
+        </div>`).join('');
+    }
+
+    function populateTransportList() {
+      document.getElementById('transportList').innerHTML = TRANSPORT_OPTIONS.map(t => `
+        <div class="tcard">
+          <div class="tcard-top"><span class="tcard-name">${t.icon} ${t.name}</span><span class="zbadge ${t.status}">${t.avail}</span></div>
+          <div class="tcard-meta">${t.meta}</div>
+        </div>`).join('');
+    }
+
+    function populateTransportTypeGrid() {
+      const types = [{id:'car',icon:'🚗',label:'Car'},{id:'bus',icon:'🚌',label:'Bus'},{id:'medical',icon:'🚑',label:'Medical'},{id:'train',icon:'🚂',label:'Train'}];
+      document.getElementById('transportTypeGrid').innerHTML = types.map((t,i) => `
+        <div class="ttype-card ${i===0?'selected':''}" onclick="document.querySelectorAll('.ttype-card').forEach(c=>c.classList.remove('selected'));this.classList.add('selected')">
+          <div class="ttype-icon">${t.icon}</div>
+          <div class="ttype-label">${t.label}</div>
+        </div>`).join('');
+    }
+
+    function populateSourcesList() {
+      document.getElementById('sourcesList').innerHTML = DATA_SOURCES.map(s => `
+        <div class="src-item">
+          <span class="src-dot" style="background:${s.color}"></span>
+          ${s.name}
+          <span class="src-status" style="color:${s.color}">${s.status}</span>
+        </div>`).join('');
+    }
+
+    // ── ACTIONS ──
+    function focusCity(name, lat, lng) {
+      if (!map) return;
+      map.panTo({ lat, lng });
+      map.setZoom(9);
+      const city = CITIES.find(c => c.name === name);
+      if (city) showCityTooltip(city);
+    }
+
+    function zoneAction(name, label) {
+      if (label === 'Safe' || label === 'Low risk') {
+        document.getElementById('toLocation').value = name;
+        document.getElementById('ride-to').value = name;
+      } else {
+        document.getElementById('fromLocation').value = name;
+        document.getElementById('ride-from').value = name;
+      }
+      switchTab('transport', document.querySelector('[data-tab="transport"]'));
+    }
+
+    function findSafeRoute() {
+      const from = document.getElementById('fromLocation').value.trim();
+      const to = document.getElementById('toLocation').value.trim();
+      if (!from || !to) { alert('Please enter both a pickup location and a destination.'); return; }
+      requestDirections(from + ', Ukraine', to);
+      document.getElementById('cityTooltip').classList.add('hidden');
+    }
+
+    function selectVehicle(el) {
+      document.querySelectorAll('.vcard').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function confirmRide() {
+      const from = document.getElementById('ride-from').value.trim();
+      const to = document.getElementById('ride-to').value.trim();
+      if (!from || !to) { alert('Please enter your pickup and destination.'); return; }
+      if (map && directionsService) requestDirections(from + ', Ukraine', to);
+      document.getElementById('ridePanel').classList.add('hidden');
+      showToast('Transport requested: ' + from + ' → ' + to + '. A driver will contact you shortly.');
+    }
+
+    function requestRide() {
+      document.getElementById('cityTooltip').classList.add('hidden');
+      document.getElementById('ridePanel').classList.remove('hidden');
+    }
+
+    function switchTab(name, el) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.remove('hidden');
+      if (el) el.classList.add('active');
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === 'en' ? 'ua' : 'en';
+      showToast(currentLang === 'ua' ? 'Мова: Українська (демо)' : 'Language: English (demo)');
+    }
+
+    // ── TOAST ──
+    function showToast(msg) {
+      let t = document.getElementById('toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'toast';
+        t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:1000;background:#10B981;color:white;border-radius:8px;padding:12px 18px;font-family:"IBM Plex Mono",monospace;font-size:12px;max-width:320px;line-height:1.5;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 5000);
+    }
+
+    // ── TICKER ──
+    function startUpdateTicker() {
+      let s = 0;
+      setInterval(() => {
+        s++;
+        const el = document.getElementById('lastUpdate');
+        if (!el) return;
+        if (s < 60) el.textContent = s + 's ago';
+        else if (s < 3600) el.textContent = Math.floor(s/60) + 'm ago';
+        else { s = 0; el.textContent = 'just now'; }
+      }, 1000);
+    }
+
+    // ── ALERT ROTATION ──
+    function startAlertRotation() {
+      const alerts = [
+        '<strong>ACTIVE ALERT:</strong>&nbsp;Increased shelling near Zaporizhzhia corridor — avoid E105 highway.',
+        '<strong>CORRIDOR OPEN:</strong>&nbsp;Kyiv → Lviv via M06 confirmed open. Estimated travel: 6h.',
+        '<strong>TRAIN UPDATE:</strong>&nbsp;Kyiv–Lviv service delayed ~90min. Platform 3.',
+        '<strong>BORDER CROSSING:</strong>&nbsp;Shehyni (Poland) open. No queue reported.',
+      ];
+      let i = 0;
+      setInterval(() => {
+        const bar = document.getElementById('alertBar');
+        if (!bar || bar.style.display === 'none') return;
+        i = (i + 1) % alerts.length;
+        document.getElementById('alertText').innerHTML = alerts[i];
+      }, 10000);
+    }
+
+    // ── SEARCH ──
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('searchInput').addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        const q = e.target.value.trim().toLowerCase();
+        if (!q) return;
+        const city = CITIES.find(c => c.name.toLowerCase().includes(q));
+        if (city) { focusCity(city.name, city.lat, city.lng); e.target.value = ''; }
+        else if (map) {
+          new google.maps.Geocoder().geocode({ address: q + ', Ukraine' }, (res, st) => {
+            if (st === 'OK' && res[0]) { map.panTo(res[0].geometry.location); map.setZoom(9); }
+          });
+        }
+      });
+    });
   </script>
-  <script src="js/data.js"></script>
-  <script src="js/map.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/app.js"></script>
+
+  <!--
+    GOOGLE MAPS API KEY SETUP:
+    1. Go to https://console.cloud.google.com
+    2. Enable: Maps JavaScript API, Directions API, Places API, Geocoding API
+    3. Create an API key and replace YOUR_GOOGLE_MAPS_API_KEY below
+  -->
   <script
-    src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=visualization,places&callback=initMap"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAx2CCxxRNDLjfQOzk8bcyJUzqlCRJ39j0&libraries=places&callback=initMap&loading=async"
     async defer>
   </script>
+
 </body>
 </html>
