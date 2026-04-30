@@ -182,6 +182,48 @@
     /* ROUTE INFO BAR */
     #routeInfo { display: none; position: fixed; bottom: 14px; left: calc(var(--sidebar-width) + 14px); background: rgba(28,35,48,0.96); backdrop-filter: blur(8px); border: 1px solid rgba(16,185,129,0.35); border-radius: var(--radius-md); padding: 7px 14px; font-family: var(--font-mono); font-size: 11px; color: #34d399; z-index: 50; }
 
+    /* EMERGENCY TAB */
+    .sos-banner { background: rgba(127,29,29,0.3); border: 1px solid rgba(239,68,68,0.25); border-radius: var(--radius-md); padding: 9px 11px; margin-bottom: 2px; }
+    .sos-banner-title { font-size: 10px; font-family: var(--font-mono); font-weight: 500; color: #fca5a5; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+    .sos-banner-title::before { content:''; width:6px; height:6px; border-radius:50%; background:#EF4444; display:inline-block; animation: blink 1s infinite; flex-shrink:0; }
+    .sos-numbers { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    .sos-num { background: var(--bg-card); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-sm); padding: 7px 9px; cursor: pointer; transition: border-color 0.15s; text-decoration: none; display: block; }
+    .sos-num:hover { border-color: rgba(239,68,68,0.5); }
+    .sos-num-label { font-size: 9px; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1px; }
+    .sos-num-val { font-size: 15px; font-weight: 700; font-family: var(--font-mono); color: #f87171; letter-spacing: 0.05em; }
+
+    .emrg-region-select { width: 100%; height: 30px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 9px; color: var(--text-primary); font-family: var(--font-mono); font-size: 11px; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23484f58'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; }
+    .emrg-region-select:focus { border-color: var(--accent-blue); }
+
+    .emrg-contacts { display: flex; flex-direction: column; gap: 5px; }
+    .emrg-contact { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 10px; transition: border-color 0.15s; }
+    .emrg-contact:hover { border-color: var(--border-hover); }
+    .emrg-contact-top { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+    .emrg-contact-icon { font-size: 13px; flex-shrink: 0; }
+    .emrg-contact-name { font-size: 11px; font-weight: 600; color: var(--text-primary); flex: 1; }
+    .emrg-contact-type { font-size: 9px; font-family: var(--font-mono); padding: 1px 6px; border-radius: 99px; }
+    .emrg-contact-type.phone { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+    .emrg-contact-type.web { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+    .emrg-contact-type.app { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.2); }
+    .emrg-contact-val { font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
+    .emrg-contact-val a { color: var(--text-secondary); text-decoration: none; }
+    .emrg-contact-val a:hover { color: var(--text-primary); text-decoration: underline; }
+    .emrg-copy-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 11px; padding: 1px 4px; border-radius: 3px; margin-left: auto; flex-shrink: 0; }
+    .emrg-copy-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+
+    .emrg-links { display: flex; flex-direction: column; gap: 4px; }
+    .emrg-link { display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 10px; font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); text-decoration: none; transition: all 0.15s; }
+    .emrg-link:hover { border-color: var(--border-hover); color: var(--text-primary); }
+    .emrg-link-icon { font-size: 13px; flex-shrink: 0; }
+    .emrg-link-arrow { margin-left: auto; font-size: 10px; color: var(--text-muted); }
+
+    /* Emergency number in city tooltip */
+    .ct-emrg { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+    .ct-emrg-title { font-size: 9px; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+    .ct-emrg-nums { display: flex; gap: 5px; flex-wrap: wrap; }
+    .ct-emrg-chip { font-size: 10px; font-family: var(--font-mono); font-weight: 600; color: #f87171; background: rgba(127,29,29,0.2); border: 1px solid rgba(239,68,68,0.2); border-radius: 99px; padding: 2px 8px; text-decoration: none; transition: background 0.15s; }
+    .ct-emrg-chip:hover { background: rgba(127,29,29,0.4); }
+
     /* RANGE SLIDER */
     input[type=range] { -webkit-appearance: none; height: 3px; background: var(--border); border-radius: 2px; outline: none; width: 100%; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; }
@@ -260,6 +302,7 @@
       <div class="sidebar-tabs">
         <button class="stab active" data-tab="map" onclick="switchTab('map',this)">Map</button>
         <button class="stab" data-tab="transport" onclick="switchTab('transport',this)">Transport</button>
+        <button class="stab" data-tab="emergency" onclick="switchTab('emergency',this)" style="color:#f87171;">🆘 SOS</button>
         <button class="stab" data-tab="sources" onclick="switchTab('sources',this)">Sources</button>
       </div>
 
@@ -303,6 +346,74 @@
             <button class="find-route-btn" onclick="findSafeRoute()">Find Safest Route →</button>
           </div>
         </div>
+      </div>
+
+      <div class="tab-panel hidden" id="tab-emergency">
+
+        <!-- National emergency numbers banner -->
+        <div class="panel-section">
+          <div class="sos-banner">
+            <div class="sos-banner-title">National Emergency Numbers</div>
+            <div class="sos-numbers">
+              <a class="sos-num" href="tel:112">
+                <div class="sos-num-label">All emergencies</div>
+                <div class="sos-num-val">112</div>
+              </a>
+              <a class="sos-num" href="tel:101">
+                <div class="sos-num-label">Fire brigade</div>
+                <div class="sos-num-val">101</div>
+              </a>
+              <a class="sos-num" href="tel:102">
+                <div class="sos-num-label">Police</div>
+                <div class="sos-num-val">102</div>
+              </a>
+              <a class="sos-num" href="tel:103">
+                <div class="sos-num-label">Ambulance</div>
+                <div class="sos-num-val">103</div>
+              </a>
+              <a class="sos-num" href="tel:104">
+                <div class="sos-num-label">Gas emergency</div>
+                <div class="sos-num-val">104</div>
+              </a>
+              <a class="sos-num" href="tel:1547">
+                <div class="sos-num-label">Psychological help</div>
+                <div class="sos-num-val">1547</div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regional contacts -->
+        <div class="panel-section">
+          <div class="section-label">Regional Contacts</div>
+          <select class="emrg-region-select" id="regionSelect" onchange="renderRegionContacts(this.value)">
+            <option value="kyiv">Kyiv</option>
+            <option value="kharkiv">Kharkiv</option>
+            <option value="lviv">Lviv</option>
+            <option value="dnipro">Dnipropetrovsk (Dnipro)</option>
+            <option value="zaporizhzhia">Zaporizhzhia</option>
+            <option value="odesa">Odesa</option>
+            <option value="mykolaiv">Mykolaiv</option>
+            <option value="sumy">Sumy</option>
+            <option value="poltava">Poltava</option>
+          </select>
+        </div>
+        <div class="panel-section">
+          <div class="emrg-contacts" id="regionContacts"></div>
+        </div>
+
+        <!-- International & humanitarian -->
+        <div class="panel-section">
+          <div class="section-label">International & Humanitarian</div>
+          <div class="emrg-contacts" id="intlContacts"></div>
+        </div>
+
+        <!-- Useful links -->
+        <div class="panel-section">
+          <div class="section-label">Key Resources</div>
+          <div class="emrg-links" id="emergencyLinks"></div>
+        </div>
+
       </div>
 
       <div class="tab-panel hidden" id="tab-sources">
@@ -382,9 +493,18 @@
           <div class="ct-row"><span>Open routes</span><strong id="ct-routes">—</strong></div>
           <div class="ct-row"><span>Displaced</span><strong id="ct-displaced">—</strong></div>
         </div>
-        <div class="ct-actions">
+        <div class="ct-emrg">
+          <div class="ct-emrg-title">Emergency numbers</div>
+          <div class="ct-emrg-nums" id="ct-emrg-nums">
+            <a class="ct-emrg-chip" href="tel:112">112 All</a>
+            <a class="ct-emrg-chip" href="tel:102">102 Police</a>
+            <a class="ct-emrg-chip" href="tel:103">103 Medical</a>
+          </div>
+        </div>
+        <div class="ct-actions" style="margin-top:8px;">
           <button class="ct-btn-primary" onclick="requestRide()">Request transport</button>
-          <button class="ct-btn-sec" onclick="document.getElementById('cityTooltip').classList.add('hidden')">Close</button>
+          <button class="ct-btn-sec" onclick="switchTab('emergency', document.querySelector('[data-tab=emergency]'))">SOS</button>
+          <button class="ct-btn-sec" onclick="document.getElementById('cityTooltip').classList.add('hidden')">✕</button>
         </div>
       </div>
 
@@ -442,6 +562,98 @@
       { name: 'Lviv → Ternopil → Ivano-Frankivsk', path: [{lat:49.8397,lng:24.0297},{lat:49.5535,lng:25.5948},{lat:48.9226,lng:24.7111}], freq: 'Every 2h' },
       { name: 'Kyiv → Polish border', path: [{lat:50.4501,lng:30.5234},{lat:50.35,lng:27.5},{lat:50.0,lng:24.5},{lat:50.3326,lng:22.1397}], freq: 'Every 3h' },
     ];
+
+    // ── EMERGENCY DATA ──
+    const REGIONAL_CONTACTS = {
+      kyiv: [
+        { icon: '🚨', name: 'Kyiv City Emergency', type: 'phone', val: '101', href: 'tel:101' },
+        { icon: '🏥', name: 'Kyiv Emergency Medicine', type: 'phone', val: '103', href: 'tel:103' },
+        { icon: '👮', name: 'Kyiv Police HQ', type: 'phone', val: '+38 044 254-7308', href: 'tel:+380442547308' },
+        { icon: '🛡️', name: 'Territorial Defence Kyiv', type: 'phone', val: '+38 044 425-2121', href: 'tel:+380444252121' },
+        { icon: '🏛️', name: 'Kyiv City Administration', type: 'web', val: 'kyivcity.gov.ua', href: 'https://kyivcity.gov.ua' },
+        { icon: '📱', name: 'Kyiv Smart City App', type: 'app', val: 'KVIS App', href: 'https://kyivcity.gov.ua/kyiv-smart-city/' },
+      ],
+      kharkiv: [
+        { icon: '🚨', name: 'Kharkiv Emergency', type: 'phone', val: '101', href: 'tel:101' },
+        { icon: '🏥', name: 'Kharkiv Regional Hospital', type: 'phone', val: '+38 057 705-2122', href: 'tel:+380577052122' },
+        { icon: '👮', name: 'Kharkiv Police', type: 'phone', val: '+38 057 700-4747', href: 'tel:+380577004747' },
+        { icon: '🛡️', name: 'Kharkiv Oblast OVA', type: 'web', val: 'kharkivoda.gov.ua', href: 'https://kharkivoda.gov.ua' },
+        { icon: '⚠️', name: 'Air Raid Alert – Kharkiv', type: 'web', val: 'alerts.in.ua', href: 'https://alerts.in.ua' },
+      ],
+      lviv: [
+        { icon: '🚨', name: 'Lviv Emergency (DSNS)', type: 'phone', val: '101', href: 'tel:101' },
+        { icon: '🏥', name: 'Lviv Regional Hospital', type: 'phone', val: '+38 032 276-5025', href: 'tel:+380322765025' },
+        { icon: '👮', name: 'Lviv Police', type: 'phone', val: '+38 032 246-0002', href: 'tel:+380322460002' },
+        { icon: '🏛️', name: 'Lviv City Council', type: 'web', val: 'city-adm.lviv.ua', href: 'https://city-adm.lviv.ua' },
+        { icon: '🤝', name: 'Lviv Refugee Aid Center', type: 'web', val: 'help.lviv.ua', href: 'https://help.lviv.ua' },
+        { icon: '📍', name: 'Lviv IDP Registration', type: 'web', val: 'lvivoblast.gov.ua', href: 'https://lvivoblast.gov.ua' },
+      ],
+      dnipro: [
+        { icon: '🚨', name: 'Dnipro Emergency', type: 'phone', val: '101', href: 'tel:101' },
+        { icon: '🏥', name: 'Dnipro Medical HQ', type: 'phone', val: '+38 056 374-6969', href: 'tel:+380563746969' },
+        { icon: '👮', name: 'Dnipro Police', type: 'phone', val: '+38 056 370-3555', href: 'tel:+380563703555' },
+        { icon: '🏛️', name: 'Dnipropetrovsk OVA', type: 'web', val: 'adm.dp.gov.ua', href: 'https://adm.dp.gov.ua' },
+      ],
+      zaporizhzhia: [
+        { icon: '🚨', name: 'Zaporizhzhia Emergency', type: 'phone', val: '101', href: 'tel:101' },
+        { icon: '🏥', name: 'Regional Emergency Medicine', type: 'phone', val: '+38 061 213-2266', href: 'tel:+380612132266' },
+        { icon: '👮', name: 'Zaporizhzhia Police', type: 'phone', val: '+38 061 239-7847', href: 'tel:+380612397847' },
+        { icon: '⚠️', name: 'Zaporizhzhia Oblast OVA', type: 'web', val: 'zoda.gov.ua', href: 'https://zoda.gov.ua' },
+        { icon: '☢️', name: 'ZNPP Information Line', type: 'phone', val: '+38 061 221-3399', href: 'tel:+380612213399' },
+      ],
+      odesa: [
+        { icon: '🚨', name: 'Odesa Emergency', type: 'phone', val: '101', href: 'tel:101' },
+        { icon: '🏥', name: 'Odesa Regional Hospital', type: 'phone', val: '+38 048 777-5555', href: 'tel:+380487775555' },
+        { icon: '👮', name: 'Odesa Police', type: 'phone', val: '+38 048 737-0102', href: 'tel:+380487370102' },
+        { icon: '🏛️', name: 'Odesa Oblast OVA', type: 'web', val: 'oda.odessa.gov.ua', href: 'https://oda.odessa.gov.ua' },
+        { icon: '⚓', name: 'Odesa Port Humanitarian Aid', type: 'phone', val: '+38 048 728-1717', href: 'tel:+380487281717' },
+      ],
+      mykolaiv: [
+        { icon: '🚨', name: 'Mykolaiv Emergency', type: 'phone', val: '101', href: 'tel:101' },
+        { icon: '🏥', name: 'Mykolaiv Oblast Hospital', type: 'phone', val: '+38 051 235-6060', href: 'tel:+380512356060' },
+        { icon: '👮', name: 'Mykolaiv Police', type: 'phone', val: '+38 051 235-0102', href: 'tel:+380512350102' },
+        { icon: '🏛️', name: 'Mykolaiv OVA', type: 'web', val: 'mykolayiv-oda.gov.ua', href: 'https://mykolayiv-oda.gov.ua' },
+      ],
+      sumy: [
+        { icon: '🚨', name: 'Sumy Emergency', type: 'phone', val: '101', href: 'tel:101' },
+        { icon: '🏥', name: 'Sumy Regional Hospital', type: 'phone', val: '+38 054 266-2020', href: 'tel:+380542662020' },
+        { icon: '👮', name: 'Sumy Police', type: 'phone', val: '+38 054 261-4747', href: 'tel:+380542614747' },
+        { icon: '🏛️', name: 'Sumy Oblast OVA', type: 'web', val: 'sm.gov.ua', href: 'https://sm.gov.ua' },
+      ],
+      poltava: [
+        { icon: '🚨', name: 'Poltava Emergency', type: 'phone', val: '101', href: 'tel:101' },
+        { icon: '🏥', name: 'Poltava Oblast Hospital', type: 'phone', val: '+38 053 222-6161', href: 'tel:+380532226161' },
+        { icon: '👮', name: 'Poltava Police', type: 'phone', val: '+38 053 250-3333', href: 'tel:+380532503333' },
+        { icon: '🏛️', name: 'Poltava Oblast OVA', type: 'web', val: 'poltava-oda.gov.ua', href: 'https://poltava-oda.gov.ua' },
+      ],
+    };
+
+    const INTL_CONTACTS = [
+      { icon: '🇺🇳', name: 'UNHCR Ukraine Helpline', type: 'phone', val: '0800-505-101', href: 'tel:0800505101' },
+      { icon: '🔴', name: 'Red Cross Ukraine', type: 'phone', val: '+38 044 235-1600', href: 'tel:+380442351600' },
+      { icon: '🌍', name: 'MSF Ukraine (Doctors W/O Borders)', type: 'phone', val: '+38 044 490-7757', href: 'tel:+380444907757' },
+      { icon: '🤝', name: 'UNICEF Ukraine', type: 'web', val: 'unicef.org/ukraine', href: 'https://www.unicef.org/ukraine' },
+      { icon: '🏥', name: 'WHO Ukraine Emergency', type: 'web', val: 'who.int/ukraine', href: 'https://www.who.int/ukraine' },
+      { icon: '📞', name: 'IOM Displacement Tracking', type: 'phone', val: '527 (free)', href: 'tel:527' },
+    ];
+
+    const EMERGENCY_LINKS = [
+      { icon: '📡', label: 'Air Raid Alerts (Real-time)', url: 'https://alerts.in.ua', desc: 'Live alarm map' },
+      { icon: '🗺️', label: 'DeepState Map', url: 'https://deepstatemap.live', desc: 'Front line tracker' },
+      { icon: '📰', label: 'Ukraine Gov Portal', url: 'https://www.kmu.gov.ua', desc: 'Official announcements' },
+      { icon: '🚂', label: 'Ukrzaliznytsia Evacuations', url: 'https://www.uz.gov.ua', desc: 'Train schedules & evacuation' },
+      { icon: '🛂', label: 'Border Crossing Status', url: 'https://dpsu.gov.ua', desc: 'State Border Guard Service' },
+      { icon: '📱', label: 'Diia App', url: 'https://diia.gov.ua', desc: 'Official Ukraine digital services' },
+      { icon: '💊', label: 'E-Health Ukraine', url: 'https://ehealth.gov.ua', desc: 'Medical records & teleconsult' },
+      { icon: '🏘️', label: 'IDP Housing Register', url: 'https://www.msp.gov.ua', desc: 'Ministry of Social Policy' },
+    ];
+
+    // Map city names to region keys for tooltip emergency numbers
+    const CITY_REGION_MAP = {
+      'Kyiv': 'kyiv', 'Kharkiv': 'kharkiv', 'Lviv': 'lviv',
+      'Dnipro': 'dnipro', 'Zaporizhzhia': 'zaporizhzhia', 'Odesa': 'odesa',
+      'Mykolaiv': 'mykolaiv', 'Sumy': 'sumy', 'Poltava': 'poltava',
+    };
 
     const RISK_ZONES = [
       { name: 'Donetsk Oblast',   lat: 48.0159, lng: 37.8028, radius: 120000, risk: 95 },
